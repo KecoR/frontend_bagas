@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "874172716821",
+    "firebase_url": "https://bagasapp-510a5.firebaseio.com",
+    "project_id": "bagasapp-510a5",
+    "storage_bucket": "bagasapp-510a5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874172716821:android:6df6be898a4aff371b7b1c",
+        "android_client_info": {
+          "package_name": "com.example.frontendBagas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "874172716821-ns5ul96870pgcojs2ci1m6g2kgcrdh2i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFz9026X8EsWS1uWfGH7AN-lCIi8gjy6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "874172716821-ns5ul96870pgcojs2ci1m6g2kgcrdh2i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
