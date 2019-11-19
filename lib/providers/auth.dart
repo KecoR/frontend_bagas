@@ -49,6 +49,9 @@ class Auth with ChangeNotifier {
   ) async {
     final url = AppConstants.urlApi + 'doRegist';
     print(url);
+    print(email);
+    print(password);
+    print(fullname);
     try {
       final response = await http.post(
         url,
@@ -56,7 +59,7 @@ class Auth with ChangeNotifier {
           'full_name': fullname,
           'email': email,
           'password': password,
-          'role': role,
+          'role': '3',
         },
       );
 

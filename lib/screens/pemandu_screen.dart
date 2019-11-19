@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tour_guide_rental/helpers/buttons.dart';
+import 'package:tour_guide_rental/helpers/styles.dart';
+import 'package:tour_guide_rental/models/AppConstants.dart';
 import 'package:tour_guide_rental/models/http_exception.dart';
 import 'package:tour_guide_rental/providers/auth.dart';
 import 'package:tour_guide_rental/providers/pemandu_orders.dart';
 import 'package:tour_guide_rental/screens/pemandu_order_screen.dart';
 import 'package:tour_guide_rental/widgets/pemandu_drawer.dart';
-import 'package:tour_guide_rental/widgets/pemandu_grid.dart';
-import 'package:tour_guide_rental/widgets/pemandu_order.dart';
 
 class PemanduScreen extends StatefulWidget {
   @override
@@ -24,6 +25,8 @@ class _PemanduScreenState extends State<PemanduScreen> {
   bool _value = false;
   String _statusNum = '';
   String _text = '';
+  String _orderIDs;
+  DocumentSnapshot _data;
 
   void _findTourist() async {
     try {
@@ -75,6 +78,43 @@ class _PemanduScreenState extends State<PemanduScreen> {
     }
   }
 
+  void _accept() async {
+    try {
+      await Provider.of<PemanduOrders>(
+        context,
+        listen: false,
+      ).accept(
+        _orderIDs,
+        _data,
+      );
+
+      _changeStatus(false);
+
+      Navigator.of(context).pushNamed(PemanduOrderScreen.routeName);
+    } on HttpException catch (error) {
+      _showErrorDialog(error.toString());
+    } catch (error) {
+      print(error.toString());
+      var errorMessage = 'Connection Error. Please try again later.';
+      _showErrorDialog(errorMessage);
+    }
+  }
+
+  void _cancel() async {
+    try {
+      await Provider.of<PemanduOrders>(context).cancel(
+        _orderIDs,
+        _data,
+      );
+    } on HttpException catch (error) {
+      _showErrorDialog(error.toString());
+    } catch (error) {
+      print(error.toString());
+      var errorMessage = 'Connection Error. Please try again later.';
+      _showErrorDialog(errorMessage);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _userId = Provider.of<PemanduOrders>(context).userId;
@@ -105,7 +145,83 @@ class _PemanduScreenState extends State<PemanduScreen> {
                   for (int i = 0; i < snapshots.data.documents.length; i++) {
                     DocumentSnapshot snapshot = snapshots.data.documents[i];
                     if (snapshot['status'] == '0') {
-                      return PemanduOrder(snapshot);
+                      _orderIDs = snapshot['orderIDs'];
+                      _data = snapshot;
+                      return CustomScrollView(
+                        slivers: <Widget>[
+                          SliverAppBar(
+                            expandedHeight: 250,
+                            pinned: true,
+                            automaticallyImplyLeading: false,
+                            flexibleSpace: FlexibleSpaceBar(
+                              centerTitle: true,
+                              title: Text(snapshot['museumName']),
+                              background: Hero(
+                                tag: snapshot['orderIDs'],
+                                child: snapshot['museumImage'] != null
+                                    ? Image.network(
+                                        AppConstants.urlImage +
+                                            snapshot['museumImage'],
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.network(AppConstants.urlUserImage +
+                                        '/avatar.png'),
+                              ),
+                            ),
+                          ),
+                          SliverList(
+                            delegate: SliverChildListDelegate(
+                              [
+                                SizedBox(
+                                  height: 25.0,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      25.0, 25.0, 0, 0),
+                                  child: Text(
+                                    'Harga : Rp. ' + snapshot['museumPrice'],
+                                    style: h4,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      25.0, 10.0, 0, 0),
+                                  child: Text(
+                                    'Wisatawan : ' + snapshot['wisatawanName'],
+                                    style: h5,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      25.0, 10.0, 0, 0),
+                                  child: Text(
+                                    'Tanggal : ' +
+                                        DateFormat('dd-MM-yyyy hh:mm').format(
+                                            snapshot['dateTime'].toDate()),
+                                    style: h5,
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.fromLTRB(25.0, 25.0, 25.0, 0),
+                                  child: froyoFlatBtn(
+                                    'Terima',
+                                    _accept,
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 0),
+                                  child: froyoFlatBtnCancel(
+                                    'Cancel',
+                                    _cancel,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
                     }
                   }
                   return NoOrder();

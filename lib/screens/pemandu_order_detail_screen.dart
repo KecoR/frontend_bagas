@@ -6,43 +6,27 @@ import 'package:tour_guide_rental/helpers/buttons.dart';
 import 'package:tour_guide_rental/helpers/colors.dart';
 import 'package:tour_guide_rental/helpers/styles.dart';
 import 'package:tour_guide_rental/models/AppConstants.dart';
-import 'package:tour_guide_rental/models/http_exception.dart';
 import 'package:tour_guide_rental/providers/auth.dart';
-import 'package:tour_guide_rental/providers/orders.dart';
+import 'package:tour_guide_rental/providers/pemandu_orders.dart';
 import 'package:tour_guide_rental/screens/conversation_screen.dart';
+import 'package:tour_guide_rental/screens/pemandu_order_screen.dart';
 
-class OrderDetailScreen extends StatefulWidget {
-  static const routeName = '/order-detail';
+class PemanduOrderDetailScreen extends StatefulWidget {
+  static const routeName = '/pemandu-order-detail';
 
   @override
-  _OrderDetailScreenState createState() => _OrderDetailScreenState();
+  _PemanduOrderDetailScreenState createState() =>
+      _PemanduOrderDetailScreenState();
 }
 
-class _OrderDetailScreenState extends State<OrderDetailScreen> {
-  double _rating = 0;
-  double _ratingOld = 0;
-
-  var _orderId;
-
+class _PemanduOrderDetailScreenState extends State<PemanduOrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    final userId = Provider.of<Auth>(context).userId;
-    final fulName = Provider.of<Auth>(context).fullName;
     final orderId = ModalRoute.of(context).settings.arguments as String;
-    final loadedOrder = Provider.of<Orders>(
+    final loadedOrder = Provider.of<PemanduOrders>(
       context,
       listen: false,
     ).findById(orderId);
-
-    if (loadedOrder.rating != null) {
-      _rating = loadedOrder.rating;
-      _ratingOld = loadedOrder.rating;
-    }
-
-    if (loadedOrder.status != '1') {
-      _rating = 0;
-      _ratingOld = 0;
-    }
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -122,7 +106,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(25.0, 10.0, 0, 0),
                   child: Text(
-                    'Pemandu : ${loadedOrder.pemanduName}',
+                    'Wisatawan : ${loadedOrder.wisatawanName}',
                     style: h5,
                   ),
                 ),
@@ -144,55 +128,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     );
                   }),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Form(
-                            child: Column(
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 10.0, bottom: 10.0),
-                                  child: StarRating(
-                                    rating: _rating,
-                                    size: 40.0,
-                                    starCount: 5,
-                                    color: Colors.deepOrange,
-                                    borderColor: Colors.grey,
-                                    onRatingChanged: (rating) {
-                                      setState(() {
-                                        _rating = rating;
-                                        _orderId = loadedOrder.id;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (_ratingOld == 0 && loadedOrder.status == '1')
-                            MaterialButton(
-                              onPressed: _submit,
-                              child: Text('Submit'),
-                              color: Colors.blue,
-                            ),
-                        ],
-                      ),
-                    ),
+                if (loadedOrder.status == '1' && loadedOrder.status == '-1')
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 0),
+                    child: froyoFlatBtn('Selesai', () {
+                      Provider.of<PemanduOrders>(context)
+                          .finish(loadedOrder.id);
+
+                      Navigator.pop(context);
+                      Navigator.of(context)
+                          .pushReplacementNamed(PemanduOrderScreen.routeName);
+                    }),
                   ),
-                ),
               ],
             ),
           ),
@@ -217,20 +164,5 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         ],
       ),
     );
-  }
-
-  void _submit() async {
-    try {
-      await Provider.of<Orders>(context).giveRating(_orderId, _rating);
-      setState(() {
-        _ratingOld = _rating;
-      });
-    } on HttpException catch (error) {
-      _showErrorDialog(error.toString());
-    } catch (error) {
-      print(error.toString());
-      var errorMessage = 'Connection Error. Please try again later.';
-      _showErrorDialog(errorMessage);
-    }
   }
 }

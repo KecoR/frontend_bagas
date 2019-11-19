@@ -154,6 +154,9 @@ class _AuthCardState extends State<AuthCard> {
           _authData['full_name'],
           _authData['role'],
         );
+
+        var printMessage = 'Register Successfully.';
+        _showErrorDialog(printMessage);
       }
     } on HttpException catch (error) {
       _showErrorDialog(error.toString());

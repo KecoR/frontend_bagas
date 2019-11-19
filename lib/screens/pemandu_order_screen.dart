@@ -1,27 +1,43 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tour_guide_rental/helpers/buttons.dart';
-import 'package:tour_guide_rental/models/http_exception.dart';
-import 'package:tour_guide_rental/providers/pemandu_orders.dart';
+import 'package:tour_guide_rental/providers/pemandu_orders.dart'
+    show PemanduOrders;
 import 'package:tour_guide_rental/widgets/pemandu_drawer.dart';
+import 'package:tour_guide_rental/widgets/pemandu_order_item.dart';
 
-class PemanduOrderScreen extends StatefulWidget {
-  @override
-  _PemanduOrderScreenState createState() => _PemanduOrderScreenState();
+class PemanduOrderScreen extends StatelessWidget {
+  static const routeName = '/pemandu-orders';
 
-  static const routeName = '/pemandu-order';
-}
-
-class _PemanduOrderScreenState extends State<PemanduOrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Orders'),
+        title: Text('Your Orders'),
       ),
       drawer: PemanduDrawer(),
-      body: Container(),
+      body: FutureBuilder(
+        future: Provider.of<PemanduOrders>(context, listen: false)
+            .fetchAndSetOrders(),
+        builder: (ctx, dataSnapshot) {
+          if (dataSnapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            if (dataSnapshot.error != null) {
+              return Center(
+                child: Text('An error occurred!'),
+              );
+            } else {
+              return Consumer<PemanduOrders>(
+                builder: (ctx, orderData, child) => ListView.builder(
+                  itemCount: orderData.orders.length,
+                  itemBuilder: (ctx, i) =>
+                      PemanduOrderItem(orderData.orders[i]),
+                ),
+              );
+            }
+          }
+        },
+      ),
     );
   }
 }

@@ -4,14 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:tour_guide_rental/models/AppConstants.dart';
 import 'package:tour_guide_rental/providers/account.dart';
 import 'package:tour_guide_rental/providers/auth.dart';
+import 'package:tour_guide_rental/providers/message.dart';
 import 'package:tour_guide_rental/providers/orders.dart';
 import 'package:tour_guide_rental/providers/pemandu_orders.dart';
 import 'package:tour_guide_rental/screens/auth_screen.dart';
+import 'package:tour_guide_rental/screens/conversation_screen.dart';
 import 'package:tour_guide_rental/screens/edit_profile_screen.dart';
 import 'package:tour_guide_rental/screens/museum_detail_screen.dart';
 import 'package:tour_guide_rental/screens/museums_overview_screen.dart';
 import 'package:tour_guide_rental/screens/oders_screen.dart';
 import 'package:tour_guide_rental/screens/order_detail_screen.dart';
+import 'package:tour_guide_rental/screens/pemandu_order_detail_screen.dart';
 import 'package:tour_guide_rental/screens/pemandu_order_screen.dart';
 import 'package:tour_guide_rental/screens/pemandu_screen.dart';
 import 'package:tour_guide_rental/screens/profile_screen.dart';
@@ -53,7 +56,14 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<Auth, PemanduOrders>(
           builder: (ctx, auth, previousOrders) => PemanduOrders(
             auth.userId,
-            previousOrders == null ? null : previousOrders.orders,
+            previousOrders == null ? [] : previousOrders.orders,
+          ),
+          initialBuilder: (BuildContext context) {},
+        ),
+        ChangeNotifierProxyProvider<Auth, Conversation>(
+          builder: (ctx, auth, previousOrders) => Conversation(
+            auth.userId,
+            auth.fullName,
           ),
           initialBuilder: (BuildContext context) {},
         ),
@@ -88,6 +98,9 @@ class MyApp extends StatelessWidget {
             ProfileScreen.routeName: (ctx) => ProfileScreen(),
             TopupScreen.routeName: (ctx) => TopupScreen(),
             EditProfileScreen.routeName: (ctx) => EditProfileScreen(),
+            ConversationScreen.routeName: (ctx) => ConversationScreen(),
+            PemanduOrderDetailScreen.routeName: (ctx) =>
+                PemanduOrderDetailScreen(),
           },
         ),
       ),

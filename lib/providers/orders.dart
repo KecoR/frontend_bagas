@@ -17,6 +17,7 @@ class OrderItem {
   final String status;
   final double rating;
   final DateTime dateTime;
+  final String messageID;
 
   OrderItem({
     @required this.id,
@@ -29,6 +30,7 @@ class OrderItem {
     @required this.status,
     @required this.rating,
     @required this.dateTime,
+    @required this.messageID,
   });
 }
 
@@ -50,7 +52,6 @@ class Orders with ChangeNotifier {
   Future<void> fetchAndSetOrders() async {
     final url = AppConstants.urlApi + 'user/' + userId + '/historyOrder';
     final response = await http.get(url);
-    // print(json.decode(response.body));
     final List<OrderItem> loadedOrders = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
     if (extractedData['data'] == "Data Tidak Ditemukan") {
@@ -70,6 +71,7 @@ class Orders with ChangeNotifier {
           museumPrice: orderData['museum']['museum_price'],
           museumImage: orderData['museum']['museum_image'],
           pemanduName: orderData['pemandu']['full_name'],
+          messageID: orderData['message_id'],
           rating: _rating,
           status: orderData['status'],
           dateTime: DateTime.parse(orderData['created_at']),
@@ -150,6 +152,18 @@ class Orders with ChangeNotifier {
         };
 
         await Firestore.instance.collection('orders').add(order);
+
+        final urlMessage = AppConstants.urlApi +
+            'order/' +
+            responseData['data']['id'].toString() +
+            '/editMessageID';
+
+        await http.put(
+          urlMessage,
+          body: {
+            'message_id': reference.documentID,
+          },
+        );
       }
     } catch (e) {
       throw e;
