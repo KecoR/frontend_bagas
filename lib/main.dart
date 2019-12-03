@@ -37,35 +37,30 @@ class MyApp extends StatelessWidget {
           builder: (ctx, auth, previousMuseums) => Museums(
             previousMuseums == null ? [] : previousMuseums.items,
           ),
-          initialBuilder: (BuildContext context) {},
         ),
         ChangeNotifierProxyProvider<Auth, Orders>(
           builder: (ctx, auth, previousOrders) => Orders(
             auth.userId,
             previousOrders == null ? [] : previousOrders.orders,
           ),
-          initialBuilder: (BuildContext context) {},
         ),
         ChangeNotifierProxyProvider<Auth, UserData>(
           builder: (ctx, auth, previousUser) => UserData(
             auth.userId,
             previousUser == null ? null : previousUser.user,
           ),
-          initialBuilder: (BuildContext context) {},
         ),
         ChangeNotifierProxyProvider<Auth, PemanduOrders>(
           builder: (ctx, auth, previousOrders) => PemanduOrders(
             auth.userId,
             previousOrders == null ? [] : previousOrders.orders,
           ),
-          initialBuilder: (BuildContext context) {},
         ),
         ChangeNotifierProxyProvider<Auth, Conversation>(
           builder: (ctx, auth, previousOrders) => Conversation(
             auth.userId,
             auth.fullName,
           ),
-          initialBuilder: (BuildContext context) {},
         ),
       ],
       child: Consumer<Auth>(

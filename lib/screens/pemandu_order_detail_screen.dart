@@ -128,7 +128,7 @@ class _PemanduOrderDetailScreenState extends State<PemanduOrderDetailScreen> {
                     );
                   }),
                 ),
-                if (loadedOrder.status == '1' && loadedOrder.status == '-1')
+                if (loadedOrder.status != '1' && loadedOrder.status != '-1')
                   Padding(
                     padding: const EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 0),
                     child: froyoFlatBtn('Selesai', () {
